@@ -13,8 +13,8 @@
 
 void init_matrix();
 void matrix_write(unsigned short rowData, char row);
-void matrix_display(_Bool data[8][16]);
-void updateFrame(_Bool frame[8][16],unsigned short dx, unsigned short dy);
+void matrix_display(_Bool frame[2][8][16], _Bool frameNum);
+void updateFrame(_Bool frame[2][8][16], _Bool frameNum,unsigned short dx, unsigned short dy);
 	
 
 #endif

@@ -23,7 +23,7 @@ void init_matrix(){
 }
 
 //set data on bus
-void matrix_write(unsigned short rowData, char row){
+void matrix_write(unsigned short rowData, char rowNum){
 	rowData = rowData & 0xFFFF;	//truncate to 16 bits
 	
 	char rightByte 	= 	((rowData>>8) & 0xFF);
@@ -35,7 +35,7 @@ void matrix_write(unsigned short rowData, char row){
 	while(!(SPI3->SR & 0x2)){__NOP();}
 	SPI3->DR = leftByte;								//write data to SPI data register
 	while(!(SPI3->SR & 0x2)){__NOP();}
-	SPI3->DR = (row & 0x7);							//write data to SPI data register
+	SPI3->DR = (rowNum & 0x7);							//write data to SPI data register
 	
 	while(SPI3->SR & 0x80){__NOP();}
 	GPIOB->BSRR = 0x00400000;						//Resetting the latch (pin 6)			
@@ -43,32 +43,26 @@ void matrix_write(unsigned short rowData, char row){
 }
 
 //compile row data into short
-unsigned short setRow(unsigned short rowNum, _Bool data[8][16]){
+unsigned short setRow(_Bool data[2][8][16], unsigned short rowNum, _Bool bufferNum){
 	unsigned short rowData = 0;
 	for (int i = 0; i<16; i++){
-		rowData|= ((data[7-rowNum][i])<<i);
+		rowData|= ((data[bufferNum][7-rowNum][i])<<i);
 	}
 	return rowData;
 }
 
 //keep displaying current frame
-void matrix_display(_Bool frame[8][16]){
+void matrix_display(_Bool frame[2][8][16], _Bool bufferNum){
 	for (int rowNum=0; rowNum<8; rowNum++){
-		matrix_write(setRow(rowNum,frame),rowNum);
+		matrix_write(setRow(frame, rowNum, bufferNum),rowNum);
 	}
 }
 
-void updateFrame(_Bool lastFrame[8][16],unsigned short dx, unsigned short dy){
-	_Bool nextFrame[8][16];
-	
+
+void updateFrame(_Bool frame[2][8][16], _Bool frameNum,unsigned short dx, unsigned short dy){
 	for(int y=0; y<8; y++){
 		for(int x=0; x<16; x++){
-			nextFrame[x][y]=lastFrame[((y+dy)&0x7)][((x+dx)&0xFF)];	
+			frame[!frameNum][((y+dy)&0x7)][((x+dx)& 0xF)] = frame[frameNum][y][x];	
 		}
 	}
-	for(int y=0; y<8; y++){
-		for(int x=0; x<16; x++){
-			lastFrame[x][y]=nextFrame[x][y];	
-		}
-	}
-}
+}	
