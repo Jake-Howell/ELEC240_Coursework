@@ -16,7 +16,6 @@
 
 #define LE1	10
 #define	LE2	11
-#define IOE	15
 
 #define set_seg1()	SEVENSEG_PORT->BSRR = (1u<<LE1)
 #define clr_seg1()	SEVENSEG_PORT->BSRR = (1u<<(LE1+16))

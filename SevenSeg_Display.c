@@ -18,7 +18,7 @@ void init_SevenSeg(){
 	|(3u<<(2*D7))
 	|(3u<<(2*LE1))
 	|(3u<<(2*LE2))
-	|(3u<<(2*IOE)));
+	|(3u<<(2*15)));
 	
 	//setting GPIOE pins as outputs
 	SEVENSEG_PORT->MODER |= 
@@ -32,7 +32,7 @@ void init_SevenSeg(){
 	|(1u<<(2*D7))
 	|(1u<<(2*LE1))
 	|(1u<<(2*LE2))
-	|(1u<<(2*IOE)));
+	|(1u<<(2*15)));
 }
 
 void set_SevenSeg(int num){
