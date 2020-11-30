@@ -45,7 +45,7 @@ void LCD_strobe(void);
 void cmdLCD(unsigned char cmd);
 void lcdLocate(int row, int col);
 void putLCD(unsigned char put);
-void initLCD(void);
+void init_LCD(void);
 void updateLCD(char line[LCD_WIDTH],int LineNo);
 void loadCustomChars();
 #endif

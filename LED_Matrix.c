@@ -46,23 +46,25 @@ void matrix_write(unsigned short rowData, char rowNum){
 unsigned short setRow(_Bool data[2][8][16], unsigned short rowNum, _Bool bufferNum){
 	unsigned short rowData = 0;
 	for (int i = 0; i<16; i++){
-		rowData|= ((data[bufferNum][7-rowNum][i])<<i);
+		rowData|= ((data[bufferNum][7-rowNum][i])<<i);	//flip endienness and place in short
 	}
 	return rowData;
 }
 
 //keep displaying current frame
-void matrix_display(_Bool frame[2][8][16], _Bool bufferNum){
-	for (int rowNum=0; rowNum<8; rowNum++){
-		matrix_write(setRow(frame, rowNum, bufferNum),rowNum);
+void matrix_display(_Bool frame[2][8][16], _Bool buffNum){
+	for (int rowNum=0; rowNum<8; rowNum++){										//itterate through rows
+		matrix_write(setRow(frame, rowNum, buffNum),rowNum);	//set data on bus
 	}
 }
 
 
-void updateFrame(_Bool frame[2][8][16], _Bool frameNum,unsigned short dx, unsigned short dy){
+void translateFrame(_Bool frame[2][8][16], _Bool buffNum,unsigned short dx, unsigned short dy){
 	for(int y=0; y<8; y++){
 		for(int x=0; x<16; x++){
-			frame[!frameNum][((y+dy)&0x7)][((x+dx)& 0xF)] = frame[frameNum][y][x];	
+			frame[!buffNum][((y+dy)&0x7)][((x+dx)& 0xF)] = frame[buffNum][y][x];	//prepare next frame with wrapping
 		}
 	}
 }	
+
+

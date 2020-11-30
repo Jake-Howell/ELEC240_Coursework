@@ -10,6 +10,15 @@
 	GPIOB->MODER|=(1u<<(2*0));						//set new pin functions on GPIOB
 }	*/
 	
+void Init_Dpad(void){
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
+	//set pins as inputs
+	GPIOG->MODER &= ~((3<<(2*Dpad_A)) | (3<<(2*Dpad_B)) | (3<<(2*Dpad_C))| (3<<(2*Dpad_D)));
+	GPIOG->PUPDR &= ~((3u<<(2*Dpad_C)) | (3u<<(2*Dpad_D)));
+	GPIOG->PUPDR |= (2u<<(2*Dpad_C)) | (2u<<(2*Dpad_D));
+}
+	
+	
 void Init_LEDs(void){
 	//ENABLE PORT(S)
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;	//ONLY GPIO B clock enable
@@ -52,7 +61,37 @@ void Init_Traffic_LEDs(void){
 void Init_BlueButton(void){
 	//PORT C13
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
-	GPIOC->MODER &= ~((1<<(2*USER_BUTTON))|(2<<(2*USER_BUTTON))); // set Blue button as input
+	GPIOC->MODER &= ~((1u<<(2*USER_BUTTON))|(2u<<(2*USER_BUTTON))); // set Blue button as input
+}
+
+_Bool checkButton(char port, unsigned short pin){
+	unsigned short state;
+	
+	switch(port){
+		case 'A':
+			state = ((GPIOA->IDR & (1u<<(pin)))>>pin);
+			break;
+		case 'B':
+			state = ((GPIOB->IDR & (1u<<(pin)))>>pin);
+			break;
+		case 'C':
+			state = ((GPIOC->IDR & (1u<<(pin)))>>pin);
+			break;
+		case 'D':
+			state = ((GPIOD->IDR & (1u<<(pin)))>>pin);
+			break;
+		case 'E':
+			state = ((GPIOE->IDR & (1u<<(pin)))>>pin);
+			break;
+		case 'F':
+			state = ((GPIOF->IDR & (1u<<(pin)))>>pin);
+			break;
+		case 'G':
+			state = ((GPIOG->IDR & (1u<<(pin)))>>pin);
+			break;
+	}
+	
+	return state;
 }
 
 void Toggle_B(int B_PIN){

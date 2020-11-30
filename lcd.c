@@ -11,25 +11,25 @@
 
 void WaitLcdBusy(void)
 {
-	Wait2_us(3000);		//3ms blocking delay
+	//Wait2_us(3000);		//3ms blocking delay
 	
-//	set_LCD_bus_input();
-//	set_LCD_RW();						//set to read
-//	clr_LCD_RS();						//Register Select (comand/data)
-//	int busyPin;						
-//	
-//	do{
-//		set_LCD_E();																	//set enable
-//		Wait2_us(20);																	//hold enable high
-//		busyPin = LCD_PORT->IDR & (1u <<	BUSY_FLAG);	//update port
-//		Wait2_us(20);
-//		clr_LCD_E();																	//reset enable
-//		LCD_strobe();
-//		//Wait2_us(10);		
-//	}while(busyPin != 0);
-//	Wait2_us(20);
-//	set_LCD_bus_output();
-//	Wait2_us(20);
+	set_LCD_bus_input();
+	set_LCD_RW();						//set to read
+	clr_LCD_RS();						//Register Select (comand/data)
+	int busyPin;						
+	
+	do{
+		set_LCD_E();																	//set enable
+		Wait2_us(20);																	//hold enable high
+		busyPin = LCD_PORT->IDR & (1u <<	BUSY_FLAG);	//update port
+		Wait2_us(20);
+		clr_LCD_E();																	//reset enable
+		LCD_strobe();
+		//Wait2_us(10);		
+	}while(busyPin != 0);
+	Wait2_us(20);
+	set_LCD_bus_output();
+	Wait2_us(20);
 }
 
 void set_LCD_data(unsigned char data)
@@ -84,7 +84,7 @@ void lcdLocate(int row, int col){
 	else if (row == 1){cmdLCD(LCD_LINE2+col);}	//memory to write data
 }
 
-void initLCD(void)
+void init_LCD(void)
 {
 		SystemCoreClockUpdate();
 		Wait2_ms(40);												//40ms delay to allow VDD to rise to 4.5V
