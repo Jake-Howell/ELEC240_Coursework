@@ -5,9 +5,12 @@
 #include "gpio.h"
 #include "lcd.h"
 #include "SevenSeg_Display.h"
+#include "buzzer.h"
+
+#define SONG1_LENGTH 12
 
 void startGameOfLife();
 _Bool runGameOfLife(_Bool frame[2][8][16], _Bool buffNum);
 _Bool rules(_Bool frame[2][8][16], _Bool buffNum, int cellX, int cellY);
-
+_Bool init_GameOfLife(_Bool frame[2][8][16]);
 #endif

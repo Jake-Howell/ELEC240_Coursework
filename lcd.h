@@ -38,6 +38,8 @@
 
 #include <stm32f4xx.h>
 
+
+
 //void lcd_delayus(unsigned int us);
 void WaitLcdBusy(void);
 void set_LCD_data(unsigned char data);
@@ -47,5 +49,6 @@ void lcdLocate(int row, int col);
 void putLCD(unsigned char put);
 void init_LCD(void);
 void updateLCD(char line[LCD_WIDTH],int LineNo);
+void updateLCDscore(unsigned short score);
 void loadCustomChars();
 #endif

@@ -11,7 +11,7 @@
 
 void WaitLcdBusy(void)
 {
-	//Wait2_us(3000);		//3ms blocking delay
+	//Wait3_us(3000);		//3ms blocking delay
 	
 	set_LCD_bus_input();
 	set_LCD_RW();						//set to read
@@ -20,16 +20,16 @@ void WaitLcdBusy(void)
 	
 	do{
 		set_LCD_E();																	//set enable
-		Wait2_us(20);																	//hold enable high
+		Wait3_us(20);																	//hold enable high
 		busyPin = LCD_PORT->IDR & (1u <<	BUSY_FLAG);	//update port
-		Wait2_us(20);
+		Wait3_us(20);
 		clr_LCD_E();																	//reset enable
 		LCD_strobe();
-		//Wait2_us(10);		
+		//Wait3_us(10);		
 	}while(busyPin != 0);
-	Wait2_us(20);
+	Wait3_us(20);
 	set_LCD_bus_output();
-	Wait2_us(20);
+	Wait3_us(20);
 }
 
 void set_LCD_data(unsigned char data)
@@ -49,11 +49,11 @@ void set_LCD_data(unsigned char data)
 
 void LCD_strobe(void)		//10us high pulse on LCD enable line
 {
-	Wait2_us(10);
+	Wait3_us(10);
 	set_LCD_E();
-	Wait2_us(10);
+	Wait3_us(10);
 	clr_LCD_E();
-	//Wait2_us(10);
+	//Wait3_us(10);
 }
 
 
@@ -87,7 +87,7 @@ void lcdLocate(int row, int col){
 void init_LCD(void)
 {
 		SystemCoreClockUpdate();
-		Wait2_ms(40);												//40ms delay to allow VDD to rise to 4.5V
+		Wait3_ms(40);												//40ms delay to allow VDD to rise to 4.5V
 		RCC->AHB1ENR|=RCC_AHB1ENR_GPIODEN;	//enable LCD port clock
 	
 	
@@ -116,19 +116,19 @@ void init_LCD(void)
 	clr_LCD_E();
 	set_BackLight();
 	
-	Wait2_ms(40);											//40ms delay to allow VDD to rise to 4.5V
+	Wait3_ms(40);											//40ms delay to allow VDD to rise to 4.5V
 	LCD_PORT->BSRR = 0x00FF0030;			//Function set: 8-Bit
 	LCD_strobe();											//apply instruction
 	
-	Wait2_us(40);											//40us delay
+	Wait3_us(40);											//40us delay
 	LCD_PORT->BSRR = 0x00FF0028;			//Function set: Set to 4-bit
 	LCD_strobe();											//apply instruction
 	
-	Wait2_us(40);											//40us delay
+	Wait3_us(40);											//40us delay
 	LCD_PORT->BSRR = 0x00FF0028;			//Function set: Set to 4-bit (instruction)
 	LCD_strobe();											//apply instruction
 	
-	Wait2_ms(1);											//1ms delay
+	Wait3_ms(1);											//1ms delay
 	
 	//now normal comands can be used
 	
@@ -136,7 +136,7 @@ void init_LCD(void)
 	cmdLCD(0x28);	//Function set: 2 line, 4-bit, 5x8 dots
 	cmdLCD(0x0C);	//Display on, Cursor blinking command
 	cmdLCD(0x01);	//Clear LCD
-	Wait2_ms(2);
+	Wait3_ms(2);
 	cmdLCD(0x06);	//Entry mode, auto increment with no shift
 	
 	loadCustomChars();	
@@ -158,6 +158,28 @@ void updateLCD(char line[LCD_WIDTH],int LineNo){
 				putLCD(printedLine[i]);							//print string
 	}
 	lcdLocate(0,0);														//reset location
+}
+
+//char shortToString(unsigned short num){
+//	unsigned short hundreds = 0, tens = 0, units = 0;
+//	char charArray[3];
+//	hundreds 	= num/100;
+//	tens 			= (num - hundreds)/10;
+//	units			= tens%10;
+//	
+
+//	
+//}
+
+
+void updateLCDscore(unsigned short score){
+//	char digit1, digit2, digit3;
+//	digit1 = score/100;
+//	digit2 = (score - digit1)/10;
+//	digit3 = 
+	
+	//updateLCD("score");
+	
 }
 
 void loadCustomChars(){
