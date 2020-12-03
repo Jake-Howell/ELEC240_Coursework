@@ -9,6 +9,9 @@
 
 #define SONG1_LENGTH 			56
 #define END_SONG_LENGTH		20
+#define BLUE_PRESS_LENGTH 8
+#define DPAD_PRESS_LENGTH	6
+
 
 void startGameOfLife();
 _Bool runGameOfLife(_Bool frame[2][8][16], _Bool buffNum);

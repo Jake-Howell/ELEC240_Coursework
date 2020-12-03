@@ -95,18 +95,20 @@ void startGameOfLife(){
 	unsigned short score = 0;
 	
 	//set sound variables to play song
-	struct _SONG_DATA songData;
+	struct _SOUND_DATA songData;
 	songData.noteStartTime_ms = TIM2->CNT;
-	songData.song_length = SONG1_LENGTH;
 	songData.noteNum = 0;
+	songData.song_length = SONG1_LENGTH;
+	songData.loopState = LOOP_TRUE;
+	
 	
 	while(continueGame){
 		
 		for(int i=0; i<500; i++){
 			matrix_display(frame,bufferNum);								//draw the nextNote frame
-			songData = playSong(song1, songData, LOOP_TRUE);	//play music
+			songData = playSong(song1, songData);	//play music
 		}
-		//translateFrame(frame,bufferNum,0,1);
+
 		continueGame = runGameOfLife(frame,bufferNum);
 		
 		//printf("Score:  %d",score);
@@ -116,10 +118,11 @@ void startGameOfLife(){
 	
 	//reset sound variables to play new song
 	songData.noteStartTime_ms = TIM2->CNT;
-	songData.song_length = END_SONG_LENGTH;
 	songData.noteNum = 0;
+	songData.song_length = END_SONG_LENGTH;
+	songData.loopState = LOOP_FALSE;
 	
-	songData = playSong(endSong, songData, LOOP_FALSE);
+	songData = playSong(endSong, songData);
 	
 	updateLCD("      GAME      ",0);
 	updateLCD("      OVER      ",1);
@@ -128,7 +131,7 @@ void startGameOfLife(){
 	//play end game tune
 	while(1){	//keep looping until the end of the song
 		matrix_display(frame,bufferNum);
-		songData = playSong(endSong, songData, LOOP_FALSE);
+		songData = playSong(endSong, songData);
 	}
 }
 
@@ -189,22 +192,48 @@ _Bool rules(_Bool frame[2][8][16], _Bool buffNum, int cellX, int cellY){
 }
 
 _Bool init_GameOfLife(_Bool frame[2][8][16]){
+	//reset sound variables to play new song
+	struct _SOUND_DATA bluePressData;
+	bluePressData.noteStartTime_ms = TIM2->CNT;
+	bluePressData.noteNum = ((BLUE_PRESS_LENGTH - 2)/2);	//start at end of sound so it doesn't start playing
+	bluePressData.song_length = BLUE_PRESS_LENGTH;
+	bluePressData.loopState = LOOP_FALSE;
+	
+	struct _SOUND_DATA dPadPressData;
+	dPadPressData.noteStartTime_ms = TIM2->CNT;
+	dPadPressData.noteNum = ((DPAD_PRESS_LENGTH - 2)/2);	//start at end of sound so it doesn't start playing
+	dPadPressData.song_length = DPAD_PRESS_LENGTH;
+	dPadPressData.loopState = LOOP_FALSE;
+	
+	//sound effects
+	unsigned int bluePress[BLUE_PRESS_LENGTH] = {
+		SILENT, 	1,
+		NOTE_A4, 	50,
+		NOTE_E5, 	50,
+		SILENT, 	1
+	};
+	unsigned int dpadPress[DPAD_PRESS_LENGTH] = {
+		SILENT, 	1,
+		NOTE_B4, 	50,
+		SILENT, 	1,
+	};
 	
 	
 	unsigned short cursorX = 0, cursorY = 0, buttonBus = 0, lastBus = 0;
 	enum STATES {NOT_PRESSED = 0, PRESSED, DEBOUNCED};
 	int currentState = NOT_PRESSED;
 	int nextState = NOT_PRESSED;
-	
+	_Bool currentCellState;
 	_Bool userButtonVal = 0, up = 0, down = 0, left = 0, right = 0, startGameOfLife = 0;
 	
 	//debounce variables
-	int startTime=0,timeElapsed = 0, longPress_CNT_ms = 0;
+	unsigned int startTime=0,timeElapsed = 0, longPress_CNT_ms = 0;
 	
 	set_SevenSeg(0);
 	while(startGameOfLife == 0){
 		matrix_display(frame,0);													//draw next frame
-		
+		bluePressData = playSong(bluePress, bluePressData);	//run blue button sound effects
+		dPadPressData = playSong(dpadPress, dPadPressData);	//run dpad sound effects
 		
 		userButtonVal = checkButton('C',USER_BUTTON);
 		up 		= checkButton('G', Dpad_D);
@@ -248,11 +277,18 @@ _Bool init_GameOfLife(_Bool frame[2][8][16]){
 				
 				
 			case DEBOUNCED:
-				if((lastBus & 1)==1){
-					frame[0][cursorY][cursorX] = !frame[0][cursorY][cursorX];
+				if((lastBus & 1) == 1){	//check if blue button was pressed
+					currentCellState = !currentCellState;	//get initial cell state
+					bluePressData.noteNum = 0; 											//reset note to start sound effect
+					
 				}else{
+					dPadPressData.noteNum = 0; //reset note to start sound effect
+					frame[0][cursorY][cursorX] = currentCellState; //set cell state before cursor moves
+					//move cursor
 					cursorX = (cursorX + (-1*(lastBus & (1u<<3u))>>3u) + (1*(lastBus&(1u<<4u))>>4u)) & 0xF;
 					cursorY = (cursorY + (-1*(lastBus & (1u<<1u))>>1u) + (1*(lastBus&(1u<<2u))>>2u)) & 0x7;
+					currentCellState = frame[0][cursorY][cursorX];	//once moved, store initial cell state
+					frame[0][cursorY][cursorX] = 1;									//keep light on in cursor location
 				}
 				nextState = NOT_PRESSED;
 				break;

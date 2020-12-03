@@ -19,20 +19,22 @@ void play_note(int period){
 	TIM1->CCR1 	= (period/2);	//update duty cycle
 }
 
-struct _SONG_DATA playSong(unsigned int song[], struct _SONG_DATA songData, _Bool loop){
-	unsigned int timeElapsed = TIM2_Elapsed_ms(songData.noteStartTime_ms);//keep track of time
-	unsigned int noteDuration = song[(2*songData.noteNum)+1];							//index the node duration
+struct _SOUND_DATA playSong(unsigned int song[], struct _SOUND_DATA data){
+	unsigned int timeElapsed = TIM2_Elapsed_ms(data.noteStartTime_ms);//keep track of time
+	unsigned int noteDuration = song[(2*data.noteNum)+1];							//index the node duration
 	
 	
-	if ((timeElapsed > noteDuration)){													//check if next note needs to be played
-		if(((2*songData.noteNum) < (songData.song_length - 2))){	//check that song has not finished
-			songData.noteNum++;																			//select the next note in song
-		}else if(loop == 1){songData.noteNum = 0;}								//replay song if loop is true
-		else{}																										//continue playing last note (should be silent) if loop is false
-		unsigned int notePeriod = song[(2*songData.noteNum)];			//index note period
-		play_note(notePeriod);																		//playSong next note
-		songData.noteStartTime_ms = TIM2->CNT;										//update note start time when new note is played
+	if ((timeElapsed > noteDuration)){//check if next note needs to be played
+		if(((2*data.noteNum) < (data.song_length - 2))){			//check that song has not finished
+			data.noteNum++;																			//select the next note in song
+			data.noteStartTime_ms = TIM2->CNT;									//update note start time when new note is played
+			unsigned int notePeriod = song[(2*data.noteNum)];			//index note period
+			play_note(notePeriod);																//playSong next note
+		}else if(data.loopState == LOOP_TRUE){								//replay song if loop is true
+			data.noteNum = 0;
+		}
+		//continue playing last note (should be silent) if loop is false
 	}
 
-	return songData;																						//return updated song data
+	return data;																						//return updated song data
 }

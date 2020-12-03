@@ -10,6 +10,9 @@
 #define LOOP_TRUE 	1
 #define LOOP_FALSE	0
 
+#define SOUND_EFFECT 	1
+#define SONG					0
+
 //notes
 #define SILENT		0
 #define NOTE_A4 	2273
@@ -26,14 +29,15 @@
 #define NOTE_GS5	1204
 #define NOTE_A5		1137
 
-struct _SONG_DATA{
+struct _SOUND_DATA{
 	unsigned int noteStartTime_ms;
 	unsigned int noteNum;
 	unsigned int song_length;
+	_Bool loopState;
 };
 
 void init_buzzer();
 void play_note(int period);
-struct _SONG_DATA playSong(unsigned int song[], struct _SONG_DATA s, _Bool loop);
+struct _SOUND_DATA playSong(unsigned int song[],struct _SOUND_DATA data);
 
 #endif
