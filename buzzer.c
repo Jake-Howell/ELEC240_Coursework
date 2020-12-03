@@ -17,16 +17,22 @@ void init_buzzer(){
 void play_note(int period){
 	TIM1->ARR 	= period;			//update period
 	TIM1->CCR1 	= (period/2);	//update duty cycle
-	
-	//set interupt to turn off note
 }
 
-
-
-unsigned int nextNote(unsigned int song[], unsigned int noteNum){
-	unsigned short noteSelect = song[(noteNum*2)];	//index note period
-	unsigned short time = song[((noteNum*2)+1)];		//index note time
+struct _SONG_DATA playSong(unsigned int song[], struct _SONG_DATA songData, _Bool loop){
+	unsigned int timeElapsed = TIM2_Elapsed_ms(songData.noteStartTime_ms);//keep track of time
+	unsigned int noteDuration = song[(2*songData.noteNum)+1];							//index the node duration
 	
-	play_note(noteSelect);													//update buzzer to play next note
-	return time;																		//return length of time note needs to be played
+	
+	if ((timeElapsed > noteDuration)){													//check if next note needs to be played
+		if(((2*songData.noteNum) < (songData.song_length - 2))){	//check that song has not finished
+			songData.noteNum++;																			//select the next note in song
+		}else if(loop == 1){songData.noteNum = 0;}								//replay song if loop is true
+		else{}																										//continue playing last note (should be silent) if loop is false
+		unsigned int notePeriod = song[(2*songData.noteNum)];			//index note period
+		play_note(notePeriod);																		//playSong next note
+		songData.noteStartTime_ms = TIM2->CNT;										//update note start time when new note is played
+	}
+
+	return songData;																						//return updated song data
 }

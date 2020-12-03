@@ -7,7 +7,8 @@
 #include "SevenSeg_Display.h"
 #include "buzzer.h"
 
-#define SONG1_LENGTH 12
+#define SONG1_LENGTH 			56
+#define END_SONG_LENGTH		20
 
 void startGameOfLife();
 _Bool runGameOfLife(_Bool frame[2][8][16], _Bool buffNum);

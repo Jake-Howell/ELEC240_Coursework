@@ -1,7 +1,14 @@
+#ifndef _BUZZER
+#define _BUZZER
+
+
 #include <stm32f4xx.h>
 #include "Delay.h"
 #define BUZ_PORT	GPIOB
 #define BUZ		13
+
+#define LOOP_TRUE 	1
+#define LOOP_FALSE	0
 
 //notes
 #define SILENT		0
@@ -17,9 +24,16 @@
 #define NOTE_FS5	1351
 #define NOTE_G5		1276
 #define NOTE_GS5	1204
+#define NOTE_A5		1137
 
-
+struct _SONG_DATA{
+	unsigned int noteStartTime_ms;
+	unsigned int noteNum;
+	unsigned int song_length;
+};
 
 void init_buzzer();
 void play_note(int period);
-unsigned int nextNote(unsigned int song[], unsigned int noteNum);
+struct _SONG_DATA playSong(unsigned int song[], struct _SONG_DATA s, _Bool loop);
+
+#endif

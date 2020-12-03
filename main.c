@@ -30,34 +30,6 @@ int main(){
 	Set_B(LD1,1);
 	
 	
-//	unsigned int startTime = TIM2->CNT;
-//	unsigned int timeElapsed = TIM2_Elapsed_ms(startTime);
-//	while(1){
-//		timeElapsed = TIM2_Elapsed_ms(startTime);
-//		if (timeElapsed > 1000){
-//			Toggle_B(LD2);
-//			startTime = TIM2->CNT;	//reset start time
-//			
-//		}
-//		printf("Time Elapsed:\t%d\t\tStartTime:\t%d\r\n", timeElapsed, startTime);
-//	}
-	
-	
-	
-//	Set_B(LD2,1);
-//	Set_B(LD3,1);
-	
-	
-	lcdLocate(0,0);
-	putLCD('A');
-	Wait3_ms(100);
-	putLCD('B');
-	Wait3_ms(100);
-	putLCD('C');
-	Wait3_ms(100);
-	putLCD('D');
-	//Wait3_ms(200);
-	
 	startGameOfLife();
 
 //	for (int i = 0; i<100; i++){
