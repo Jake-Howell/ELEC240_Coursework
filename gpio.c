@@ -68,30 +68,30 @@ _Bool checkButton(char port, unsigned short pin){
 	unsigned short state;
 	
 	switch(port){
-		case 'A':
-			state = ((GPIOA->IDR & (1u<<(pin)))>>pin);
+		case 'A':																			//select port A
+			state = ((GPIOA->IDR & (1u<<(pin)))>>pin);	//check state of pin on port A
 			break;
-		case 'B':
-			state = ((GPIOB->IDR & (1u<<(pin)))>>pin);
+		case 'B':																			//select port B
+			state = ((GPIOB->IDR & (1u<<(pin)))>>pin);	//check state of pin on port B
 			break;
-		case 'C':
-			state = ((GPIOC->IDR & (1u<<(pin)))>>pin);
+		case 'C':																			//select port C
+			state = ((GPIOC->IDR & (1u<<(pin)))>>pin);	//check state of pin on port C
 			break;
-		case 'D':
-			state = ((GPIOD->IDR & (1u<<(pin)))>>pin);
+		case 'D':																			//select port D
+			state = ((GPIOD->IDR & (1u<<(pin)))>>pin);	//check state of pin on port D
 			break;
-		case 'E':
-			state = ((GPIOE->IDR & (1u<<(pin)))>>pin);
+		case 'E':																			//select port E
+			state = ((GPIOE->IDR & (1u<<(pin)))>>pin);	//check state of pin on port E
 			break;
-		case 'F':
-			state = ((GPIOF->IDR & (1u<<(pin)))>>pin);
+		case 'F':																			//select port F
+			state = ((GPIOF->IDR & (1u<<(pin)))>>pin);	//check state of pin on port F
 			break;
-		case 'G':
-			state = ((GPIOG->IDR & (1u<<(pin)))>>pin);
+		case 'G':																			//select port G
+			state = ((GPIOG->IDR & (1u<<(pin)))>>pin);	//check state of pin on port G
 			break;
 	}
 	
-	return state;
+	return state;																		//return state of selected pin
 }
 
 void Toggle_B(int B_PIN){

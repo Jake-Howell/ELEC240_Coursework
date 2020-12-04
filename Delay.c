@@ -96,6 +96,13 @@ unsigned int TIM2_Elapsed_ms(unsigned int startTime){
 	return timeElapsed_ms;
 }
 
+unsigned int TIM3_Elapsed_us(unsigned int startTime){
+	
+	unsigned int currentTime = TIM3->CNT;
+	unsigned int timeElapsed_us = (((currentTime - startTime) & 0xFFFF));
+	return timeElapsed_us;
+}
+
 
 void Wait3_us(int delay_us){
 	

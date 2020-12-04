@@ -127,12 +127,14 @@ void startGameOfLife(){
 	updateLCD("      GAME      ",0);
 	updateLCD("      OVER      ",1);
 	
-	
+	unsigned int startTime = TIM2->CNT, timeElapsed = 0; 
 	//play end game tune
-	while(1){	//keep looping until the end of the song
+	while(timeElapsed < 3000){	//keep looping until the end of the song
 		matrix_display(frame,bufferNum);
 		songData = playSong(endSong, songData);
+		timeElapsed = TIM2_Elapsed_ms(startTime);
 	}
+	return;	//return to game menu
 }
 
 _Bool runGameOfLife(_Bool frame[2][8][16], _Bool buffNum){
@@ -248,11 +250,11 @@ _Bool init_GameOfLife(_Bool frame[2][8][16]){
 			
 			
 			case NOT_PRESSED:
-				if (buttonBus>0){
-					lastBus = buttonBus;
-					startTime = TIM3->CNT;
-					nextState = PRESSED;
-				}else{nextState = NOT_PRESSED;}
+				if (buttonBus>0){									//checkButton if any button is pressed
+					lastBus = buttonBus;						//store the value of all buttons for inspection later
+					startTime = TIM3->CNT;					//set start time
+					nextState = PRESSED;						//switch to next state
+				}else{nextState = NOT_PRESSED;}		//stay in current stare
 				break;
 				
 				
@@ -260,10 +262,10 @@ _Bool init_GameOfLife(_Bool frame[2][8][16]){
 				//if button released before debounce time, ignore input
 				if ((buttonBus==0) && (timeElapsed < 20)){
 					nextState = NOT_PRESSED;
-				}else if (buttonBus == 0){
-					startTime = 0;				//reset time
-					timeElapsed = 0;			//reset time
-					longPress_CNT_ms = 0;	//reset long press counter if button was released before 2 seconds
+				}else if (buttonBus == 0){ 	//if button is released after 20ms 
+					startTime = 0;						//reset time
+					timeElapsed = 0;					//reset time
+					longPress_CNT_ms = 0;			//reset long press counter if button was released before 2 seconds
 					nextState = DEBOUNCED;
 				}
 				else if ((userButtonVal == 1) && (timeElapsed > 0x3E8)){	//count 1ms
@@ -278,7 +280,7 @@ _Bool init_GameOfLife(_Bool frame[2][8][16]){
 				
 			case DEBOUNCED:
 				if((lastBus & 1) == 1){	//check if blue button was pressed
-					currentCellState = !currentCellState;	//get initial cell state
+					currentCellState = !currentCellState;						//get initial cell state
 					bluePressData.noteNum = 0; 											//reset note to start sound effect
 					
 				}else{

@@ -11,7 +11,7 @@
 
 void WaitLcdBusy(void)
 {
-	//Wait3_us(3000);		//3ms blocking delay
+	//Wait3_us(3000);				//3ms blocking delay
 	
 	set_LCD_bus_input();
 	set_LCD_RW();						//set to read
