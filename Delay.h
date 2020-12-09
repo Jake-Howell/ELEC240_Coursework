@@ -2,7 +2,7 @@
 #define __DELAY_H
 
 #include <stm32f4xx.h>		//INCLUDE THE HEADER FILE FOR THIS MCU FAMILY
-#include "Delay.h"
+#include "LED.h"
 
 
 #define ENABLE_ISR 1
@@ -33,7 +33,7 @@ void Init_Timer2(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable);
 
 void Init_Timer3(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable);
 
-void Init_Timer4(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable);
+void Init_Timer4_WhiteLight(unsigned int duration);
 
 void Init_Timer5(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable);
 
@@ -46,5 +46,7 @@ unsigned int TIM2_Elapsed_ms(unsigned int startTime);
 void Wait3_us(int delay_us);
 void Wait3_ms(int delay_ms);
 void Wait3_s(int delay_s);
+void Wait4_us(int delay_us);
+void Wait4_ms(int delay_ms);
 _Bool wait_1ms_ButtonCheck(void);
 #endif

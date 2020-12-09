@@ -3,7 +3,7 @@
 void init_buzzer(){
 	buzzer_PWM(0);
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
-	BUZ_PORT->AFR[1] 	|=	(1u<<(4*(BUZ-8)));	//BUZ pin for tim 8
+	BUZ_PORT->AFR[1] 	|=	(1u<<(4*(BUZ-8)));	//BUZ pin for tim 1
 	BUZ_PORT->MODER 	&=	~(3u<<(2*BUZ));			//reset pin mode
 	BUZ_PORT->MODER 	|=	(2u<<(2*BUZ));			//set pin as alternate function
 	
@@ -35,6 +35,5 @@ struct _SOUND_DATA playSong(unsigned int song[], struct _SOUND_DATA data){
 		}
 		//continue playing last note (should be silent) if loop is false
 	}
-
 	return data;																						//return updated song data
 }

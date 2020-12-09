@@ -1,12 +1,12 @@
 #include <stm32f4xx.h>		//INCLUDE THE HEADER FILE FOR THIS MCU FAMILY
-#include "gpio.h"
+#include "Delay.h"
 /*void Toggle_BPin(int pin)
 {
 	GPIOB->ODR ^= (0x1<<pin);							//Toggle_BPin Any GPIOB pin using XOR
 }*/
 
 void buzzer_PWM(unsigned int period_us){
-	RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;	//ENABLE tim1 to run on APB1 (Advanced Perphieral Bus 1's clock tick) - 90MHz in this case
+	RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;	//ENABLE tim1 to run on APB2 (Advanced Perphieral Bus 2's clock tick) - 90MHz in this case
 	
 	TIM1->PSC = 45 - 1;											//setting pre-scaler for 1us ticks (APB2 clock devider) 
 	TIM1->ARR = period_us - 1;							//counter reload value (Auto Reload Register - TIM1 ARR is only 16 bit)	
@@ -44,20 +44,20 @@ void Init_Timer3(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable){
 	TIM3->CR1|= TIM_CR1_CEN;						//sets first bit of controle register to 1 (this enables it)
 }
 
-void Init_Timer4(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable){
-	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;	//ENABLE tim4 to run on APB1 (Advanced Perphieral Bus 1's clock tick) - 90MHz in this case
-	TIM4->DIER |= TIM_DIER_UIE;					//timer update interrupt enabled
+void Init_Timer4_WhiteLight(unsigned int duration){
+	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;	//ENABLE tim1 to run on APB2 (Advanced Perphieral Bus 2's clock tick) - 90MHz in this case
 	
-	TIM4->PSC = PSC_val - 1;							//setting pre-scaler (APB1 clock devider) 
-	TIM4->ARR = ARR_val - 1;								//counter reload value (Auto Reload Register - TIM3 ARR is only 16 bit)	
+	TIM4->PSC = 45 - 1;											//setting pre-scaler for 1us ticks (APB2 clock devider) 
+	TIM4->ARR = duration - 1;							//counter reload value (Auto Reload Register - TIM1 ARR is only 16 bit)	
 	TIM4->CNT = 0;											//set initial value to counter
-	if (ISR_Enable == 1){
-		NVIC->ISER[0]|=(1u<<30);					//timer 4 global interrupt enabled
-	}
+	TIM4->CCMR1 = 0x0068;								//PWM mode wit preload enabled
+	TIM4->CCER 	=	0x0004;								//ENABLE PWM on ch1N
+	TIM4->CCR1 	=	0;										//pulse width of starting at 0%
+	TIM4->BDTR	=	0x8000;								//ENABLE output
 	TIM4->CR1|= TIM_CR1_CEN;						//sets first bit of controle register to 1 (this enables it)
 }
 
-void Init_Timer5(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable){
+void Init_Timer5(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable){	//32 bit timer
 	RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;	//ENABLE tim5 to run on APB1 (Advanced Perphieral Bus 1's clock tick) - 90MHz in this case
 	TIM5->DIER |= TIM_DIER_UIE;					//timer update interrupt enabled
 	
@@ -72,7 +72,7 @@ void Init_Timer5(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable){
 }
 
 void TIM2_IRQHandler(void){							//TIMER 2 INTERRUPT SERVICE ROUTINE
-	TIM2->SR &= ~TIM_SR_UIF;								//clear interrupt flag in status register
+	TIM2->SR &= ~TIM_SR_UIF;							//clear interrupt flag in status register
 	Toggle_B(LD3);
 }
 
@@ -82,10 +82,12 @@ void TIM3_IRQHandler(void){
 
 void TIM4_IRQHandler(void){
 	TIM4->SR &= ~TIM_SR_UIF;							//clear interrupt flag in status register
+	GPIOF->ODR ^= (1u<<GREEN_MAN);				//toggle white light
 }
 
 void TIM5_IRQHandler(void){
 	TIM5->SR &= ~TIM_SR_UIF;
+	
 }
 
 
@@ -116,17 +118,6 @@ void Wait3_us(int delay_us){
 	
 }
 
-_Bool wait_1ms_ButtonCheck(){
-	int start = TIM3->CNT;						//mark the stating point
-	int delay_us = 1000;							//1000us clock cycles per ms
-	int current_CNT = start;
-	
-	while(((current_CNT - start) & (0xFFFF)) < delay_us){
-		current_CNT = TIM3->CNT;
-	}//calculate diffrence in time and compare to delay_cycles
-	return GPIOF->IDR &= (1<<USER_BUTTON);
-}
-
 void Wait3_ms(int delay_ms){
 	int count = delay_ms;
 	while(count > 0){
@@ -134,6 +125,40 @@ void Wait3_ms(int delay_ms){
 		count --;
 	}
 }
+
+void Wait4_us(int delay_us){
+	
+	int start = TIM4->CNT;								//mark the stating point
+	int current_CNT = start;
+	
+	while(((current_CNT - start) & (0xFFFF)) < delay_us){
+		current_CNT = TIM4->CNT;
+		
+	}//calculate diffrence in time and compare to delay_cycles
+	
+}
+
+void Wait4_ms(int delay_ms){
+	int count = delay_ms;
+	while(count > 0){
+		Wait4_us(1000);
+		count --;
+	}
+}
+
+
+//_Bool wait_1ms_ButtonCheck(){
+//	int start = TIM3->CNT;						//mark the stating point
+//	int delay_us = 1000;							//1000us clock cycles per ms
+//	int current_CNT = start;
+//	
+//	while(((current_CNT - start) & (0xFFFF)) < delay_us){
+//		current_CNT = TIM3->CNT;
+//	}//calculate diffrence in time and compare to delay_cycles
+//	return GPIOF->IDR &= (1<<USER_BUTTON);
+//}
+
+
 
 
 

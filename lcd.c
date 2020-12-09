@@ -11,7 +11,7 @@
 
 void WaitLcdBusy(void)
 {
-	//Wait3_us(3000);				//3ms blocking delay
+//	Wait3_us(3000);				//3ms blocking delay
 	
 	set_LCD_bus_input();
 	set_LCD_RW();						//set to read
@@ -53,7 +53,6 @@ void LCD_strobe(void)		//10us high pulse on LCD enable line
 	set_LCD_E();
 	Wait3_us(10);
 	clr_LCD_E();
-	//Wait3_us(10);
 }
 
 
@@ -108,6 +107,45 @@ void init_LCD(void)
 			|(0x5555<<(2*LCD_D0_pin))	  //D4-D7 set to output mode D0-D3 output too (for grounding reasons)
 			|1u<<(2*LCD_BACKLIGHT)			//enable backlight pin
 		);
+		
+	//reset all pin output type values	
+	LCD_PORT->OTYPER &= ~(
+	(1<<(LCD_D0_pin))
+	|(1<<(LCD_D1_pin))
+	|(1<<(LCD_D2_pin))
+	|(1<<(LCD_D3_pin))
+	|(1<<(LCD_D4_pin))
+	|(1<<(LCD_D5_pin))
+	|(1<<(LCD_D6_pin))
+	|(1<<(LCD_D7_pin))
+	);
+	//SET to open drain
+	LCD_PORT->OTYPER |= (
+	(1<<(LCD_D0_pin))
+	|(1<<(LCD_D1_pin))
+	|(1<<(LCD_D2_pin))
+	|(1<<(LCD_D3_pin))
+	|(1<<(LCD_D4_pin))
+	|(1<<(LCD_D5_pin))
+	|(1<<(LCD_D6_pin))
+	|(1<<(LCD_D7_pin))
+	);
+	
+	LCD_PORT->PUPDR &= ~(						//clear pin direction settings
+			(3u<<(2*LCD_RS_pin))				//reset Reg Select
+			|(3u<<(2*LCD_RW_pin))				//reset Read/Write
+			|(3u<<(2*LCD_E_pin))				//reset Enable
+			|(0xFFFF<<(2*LCD_D0_pin))		//D4 - D7	reset
+			);
+	LCD_PORT->PUPDR |=	 						//clear pin direction settings
+			(2u<<(2*LCD_RS_pin))				//reset Reg Select
+			|(2u<<(2*LCD_RW_pin))				//reset Read/Write
+			|(2u<<(2*LCD_E_pin))				//reset Enable
+			|(0xAAAA<<(2*LCD_D0_pin));	//D4 - D7	reset
+	
+
+
+
 
 	
 	//LCD INIT COMMANDS
@@ -160,26 +198,70 @@ void updateLCD(char line[LCD_WIDTH],int LineNo){
 	lcdLocate(0,0);														//reset location
 }
 
-//char shortToString(unsigned short num){
-//	unsigned short hundreds = 0, tens = 0, units = 0;
-//	char charArray[3];
-//	hundreds 	= num/100;
-//	tens 			= (num - hundreds)/10;
-//	units			= tens%10;
-//	
-
-//	
-//}
 
 
-void updateLCDscore(unsigned short score){
-//	char digit1, digit2, digit3;
-//	digit1 = score/100;
-//	digit2 = (score - digit1)/10;
-//	digit3 = 
+void updateLCDscore(char name[6], unsigned short score){
+	unsigned int hundreds, tens, units, i;
+	char printedLine[16] = "       SCORE    ";	//set initial value to score				
+	hundreds = score/100;												//calculate hundreds digit
+	tens = (score%100)/10;											//calculate tens digit
+	units = ((score%100)%10);										//calculate units digit
 	
-	//updateLCD("score");
+	for (i = 0; name[i] != 0 && i <6; i++){			//if selected char is valid, add to to printed line
+			printedLine[i] = name[i];
+	}
 	
+	//reserve last 3 line spaces for score
+	printedLine[13] = intToChar(hundreds); 	//add hundreds char to printed line		
+	printedLine[14] = intToChar(tens);			//add tens char to printed line
+	printedLine[15] = intToChar(units);			//add units char to printed line
+	
+	lcdLocate(1,0);													//set_BackLight cursor location to Row 1, col 0
+	
+	for (int i = 0; i < LCD_WIDTH; i++){		//itterate through printedLine array
+				putLCD(printedLine[i]);						//printedLine each char of printedLine to display
+	}
+	lcdLocate(0,0);													//return cursor to position 0,0 on LCD
+	
+}
+
+char intToChar(unsigned int digit){
+	char asciiChar;
+	switch(digit){
+		
+		case 0:							//if the digit is 0 return char '0'
+			asciiChar = '0';
+			break;
+		case 1:							//if the digit is 1 return char '1'
+			asciiChar = '1';
+			break;
+		case 2:							//if the digit is 2 return char '2'
+			asciiChar = '2';
+			break;
+		case 3:							//if the digit is 3 return char '3'
+			asciiChar = '3';
+			break;
+		case 4:							//if the digit is 4 return char '4'
+			asciiChar = '4';
+			break;
+		case 5:							//if the digit is 5 return char '5'
+			asciiChar = '5';
+			break;
+		case 6:							//if the digit is 6 return char '6'
+			asciiChar = '6';
+			break;
+		case 7:							//if the digit is 7 return char '7'
+			asciiChar = '7';
+			break;
+		case 8:							//if the digit is 8 return char '8'
+			asciiChar = '8';
+			break;
+		case 9:							//if the digit is 9 return char '9'
+			asciiChar = '9';
+			break;
+	
+	}//end of switch 
+	return asciiChar;
 }
 
 void loadCustomChars(){
@@ -238,12 +320,12 @@ void loadCustomChars(){
 //		0b00000,//7
 
 		//Packman Food (DDRAM Address 0x4)
-		0b01000,//0
-		0b01100,//1
-		0b00110,//2
+		0b00000,//0
+		0b00000,//1
+		0b00000,//2
 		0b00110,//3
 		0b00110,//4
-		0b01100,//5
+		0b00000,//5
 		0b00000,//6
 		0b00000,//7
 	};

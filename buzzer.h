@@ -4,16 +4,14 @@
 
 #include <stm32f4xx.h>
 #include "Delay.h"
-#define BUZ_PORT	GPIOB
-#define BUZ		13
+#define BUZ_PORT	GPIOB	//set buzzer port
+#define BUZ		13				//set pin used for buzzer
 
-#define LOOP_TRUE 	1
-#define LOOP_FALSE	0
+#define LOOP_TRUE 	1		//create constant to set music to loop
+#define LOOP_FALSE	0		//create constant to play music once
 
-#define SOUND_EFFECT 	1
-#define SONG					0
 
-//notes
+//note time periods in us
 #define SILENT		0
 #define NOTE_A4 	2273
 #define NOTE_AS4 	2145
@@ -29,15 +27,15 @@
 #define NOTE_GS5	1204
 #define NOTE_A5		1137
 
-struct _SOUND_DATA{
-	unsigned int noteStartTime_ms;
-	unsigned int noteNum;
-	unsigned int song_length;
-	_Bool loopState;
+struct _SOUND_DATA{								//create struct to store song meta data
+	unsigned int noteStartTime_ms;	//store the start time of each new note
+	unsigned int noteNum;						//store which note in the song is currently being played
+	unsigned int song_length;				//store the length of the song array
+	_Bool loopState;								//store weather the song should loop or not
 };
 
-void init_buzzer();
-void play_note(int period);
-struct _SOUND_DATA playSong(unsigned int song[],struct _SOUND_DATA data);
+void init_buzzer();								//buzzer initiliser 
+void play_note(int period);				//change note being played
+struct _SOUND_DATA playSong(unsigned int song[],struct _SOUND_DATA data);	//control music and update SOUND_DATA struct
 
 #endif

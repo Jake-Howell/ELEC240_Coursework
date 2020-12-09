@@ -19,7 +19,7 @@ char receive_usart(void){
 	}
 	return USART_MODULE->DR;						 //Return contense of status register
 }
-void init_USART(void)
+void init_USART(unsigned int baudRate)
 {
 	__disable_irq();
 	unsigned char i1,i2;
@@ -51,8 +51,11 @@ void init_USART(void)
 			|0x0020															//Enable interrupt on RXNE (Receive Not Empty Flag)
 				);
 	
-	//USART_MODULE->BRR=(SystemCoreClock/4)/(16*(BAUDRATE));		//set baud rate
-	USART_MODULE->BRR=0x124F;																								//this is not an accurate way to set the baudrate
+	unsigned int temp  = ((((SystemCoreClock)/4)<<5)/(16*baudRate));
+	unsigned int result = (temp>>1) + (temp & 0x1);
+	
+	USART_MODULE->BRR= result;		//set baud rate
+	//USART_MODULE->BRR=0x124F;																								//this is not an accurate way to set the baudrate
 																									//and only works for 16Mhz system clock.
 	NVIC_EnableIRQ(USART3_IRQn);										//enable USART3 Interrupt																								
 	__enable_irq();
@@ -75,4 +78,5 @@ void USART3_IRQHandler(void){
 		usart_print("Char Interupt Recived: ");
 		send_usart(c);
 		usart_print("\n\r");
+
 }

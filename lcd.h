@@ -7,7 +7,13 @@
 #define LCD_LINE1		0x80							//LCD DDRAM address for line 1 
 #define LCD_LINE2		0xc0							//LCD DDRAM address for line 2
 #define LCD_D0_pin	0									//micro controller pin connected to LCD D0 pin
+#define LCD_D1_pin	1
+#define LCD_D2_pin	2
+#define LCD_D3_pin	3
 #define LCD_D4_pin	4
+#define LCD_D5_pin	5
+#define LCD_D6_pin	6
+#define LCD_D7_pin	7
 #define BUSY_FLAG		(LCD_D0_pin + 7)	//micro controller pin connected to LCD busy flag
 #define LCD_PORT	GPIOD								//micro controller port LCD is connected to
 #define LCD_RS_pin	11								//micro controller pin connected to LCD Register Select pin
@@ -41,14 +47,15 @@
 
 
 //void lcd_delayus(unsigned int us);
-void WaitLcdBusy(void);
-void set_LCD_data(unsigned char data);
-void LCD_strobe(void);
-void cmdLCD(unsigned char cmd);
-void lcdLocate(int row, int col);
-void putLCD(unsigned char put);
-void init_LCD(void);
-void updateLCD(char line[LCD_WIDTH],int LineNo);
-void updateLCDscore(unsigned short score);
-void loadCustomChars();
+void WaitLcdBusy(void);														//check the busy pin on LCD. Wehn LCD is not busy, screen can check the bus
+void set_LCD_data(unsigned char data);						//set data onto the bus
+void LCD_strobe(void);														//set and unset enable pin on LCD so it can the bus
+void cmdLCD(unsigned char cmd);										//send instruction to LCD
+void lcdLocate(int row, int col);									//move cursor location to specified point on screen
+void putLCD(unsigned char put);										//set_BackLight data onto LCD
+void init_LCD(void);															//initalise the LCD into 4-bit mode
+void updateLCD(char line[LCD_WIDTH],int LineNo);	//display a string on the LCD
+void updateLCDscore(char name[6], unsigned short score);				//display score on LCD
+char intToChar(unsigned int digit); 							//convert an intager to an ASCII character
+void loadCustomChars();														//load custom characters into CGRAM
 #endif
