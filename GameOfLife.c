@@ -8,7 +8,7 @@ void startGameOfLife(){
 	init_SevenSeg();
 	init_LCD();
 	Init_LEDs();
-	
+	char userName[6]; 
 	
 	//128 bit frame with blank 128 bit buffer
 	_Bool frame[2][8][16] =
@@ -78,7 +78,15 @@ void startGameOfLife(){
 	};
 	
 	
+	//printf("%c",0x1B);
 	updateLCD("The Game of Life",0);
+	updateLCD("Enter Name on PC",1);
+	
+	
+	printf("Please enter your name (6 chars max) and hit enter:\r\n");
+	usart_get_string(userName,6);
+	printf("Your Username is:\t%s",userName);
+	
 	Wait3_s(1);
 	updateLCD("Move with D Pad",0);
 	updateLCD("select with blue",1);
@@ -114,7 +122,7 @@ void startGameOfLife(){
 		continueGame = runGameOfLife(frame,bufferNum);
 		score++;																			//for each new frame add 1 to score
 		//printf("Score:  %d",score);
-		updateLCDscore("Jake", score);
+		updateLCDscore(userName, score);
 		bufferNum = !bufferNum;						//flip the buffer to draw the next frame
 	}
 	
@@ -127,7 +135,7 @@ void startGameOfLife(){
 	songData = playSong(endSong, songData);
 	
 	updateLCD("   GAME OVER!   ",0);		//print GAME over to LCD line 0
-	updateLCDscore("Jake", score);			//print name and score at end of game
+	updateLCDscore(userName, score);			//print name and score at end of game
 	
 	
 	unsigned int startTime = TIM2->CNT, timeElapsed = 0; 

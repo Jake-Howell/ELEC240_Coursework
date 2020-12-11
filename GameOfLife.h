@@ -7,6 +7,7 @@
 #include "lcd.h"
 #include "SevenSeg_Display.h"
 #include "buzzer.h"
+#include "usart.h"
 
 #define SONG1_LENGTH 			56
 #define END_SONG_LENGTH		20

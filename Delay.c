@@ -8,8 +8,8 @@
 void buzzer_PWM(unsigned int period_us){
 	RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;	//ENABLE tim1 to run on APB2 (Advanced Perphieral Bus 2's clock tick) - 90MHz in this case
 	
-	TIM1->PSC = 45 - 1;											//setting pre-scaler for 1us ticks (APB2 clock devider) 
-	TIM1->ARR = period_us - 1;							//counter reload value (Auto Reload Register - TIM1 ARR is only 16 bit)	
+	TIM1->PSC = 45 - 1;									//setting pre-scaler for 1us ticks (APB2 clock devider) 
+	TIM1->ARR = period_us - 1;					//counter reload value (Auto Reload Register - TIM1 ARR is only 16 bit)	
 	TIM1->CNT = 0;											//set initial value to counter
 	TIM1->CCMR1 = 0x0068;								//PWM mode wit preload enabled
 	TIM1->CCER 	=	0x0004;								//ENABLE PWM on ch1N
@@ -23,10 +23,10 @@ void Init_Timer2(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable){
 	TIM2->DIER |= TIM_DIER_UIE;					//timer update interrupt enabled
 	
 	TIM2->PSC = PSC_val -1;							//setting pre-scaler (APB1 clock devider) 
-	TIM2->ARR = ARR_val -1;								//counter reload value (Auto Reload Register - TIM2 ARR is 32 bit)	
-	TIM2->CNT = 0xFFFFFFFE;								//set initial value to counter
+	TIM2->ARR = ARR_val -1;							//counter reload value (Auto Reload Register - TIM2 ARR is 32 bit)	
+	TIM2->CNT = 0xFFFFFFFE;							//set initial value to counter
 	if (ISR_Enable == 1){
-		NVIC->ISER[0]|=(1u<<28);						//timer 2 global interrupt enabled
+		NVIC->ISER[0]|=(1u<<28);					//timer 2 global interrupt enabled
 	}
 	TIM2->CR1|= TIM_CR1_CEN;						//sets first bit of controle register to 1 (this enables it)
 }
@@ -35,25 +35,25 @@ void Init_Timer3(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable){
 	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;	//ENABLE tim3 to run on APB1 (Advanced Perphieral Bus 1's clock tick) - 90MHz in this case
 	TIM3->DIER |= TIM_DIER_UIE;					//timer update interrupt enabled
 	
-	TIM3->PSC = PSC_val - 1;							//setting pre-scaler (APB1 clock devider) 
-	TIM3->ARR = ARR_val - 1;								//counter reload value (Auto Reload Register - TIM3 ARR is only 16 bit)	
+	TIM3->PSC = PSC_val - 1;						//setting pre-scaler (APB1 clock devider) 
+	TIM3->ARR = ARR_val - 1;						//counter reload value (Auto Reload Register - TIM3 ARR is only 16 bit)	
 	TIM3->CNT = 0;											//set initial value to counter
 	if (ISR_Enable == 1){
-		NVIC->ISER[0]|=(1u<<29);						//timer 3 global interrupt enabled
+		NVIC->ISER[0]|=(1u<<29);					//timer 3 global interrupt enabled
 	}
 	TIM3->CR1|= TIM_CR1_CEN;						//sets first bit of controle register to 1 (this enables it)
 }
 
-void Init_Timer4_WhiteLight(unsigned int duration){
-	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;	//ENABLE tim1 to run on APB2 (Advanced Perphieral Bus 2's clock tick) - 90MHz in this case
+void Init_Timer4_GreenFlash(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable){
+	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;	//ENABLE tim4 to run on APB1 (Advanced Perphieral Bus 1's clock tick) - 90MHz in this case
+	TIM4->DIER |= TIM_DIER_UIE;					//timer update interrupt enabled
 	
-	TIM4->PSC = 45 - 1;											//setting pre-scaler for 1us ticks (APB2 clock devider) 
-	TIM4->ARR = duration - 1;							//counter reload value (Auto Reload Register - TIM1 ARR is only 16 bit)	
+	TIM4->PSC = PSC_val - 1;						//setting pre-scaler (APB1 clock devider) 
+	TIM4->ARR = ARR_val - 1;						//counter reload value (Auto Reload Register - TIM4 ARR is only 16 bit)	
 	TIM4->CNT = 0;											//set initial value to counter
-	TIM4->CCMR1 = 0x0068;								//PWM mode wit preload enabled
-	TIM4->CCER 	=	0x0004;								//ENABLE PWM on ch1N
-	TIM4->CCR1 	=	0;										//pulse width of starting at 0%
-	TIM4->BDTR	=	0x8000;								//ENABLE output
+	if (ISR_Enable == 1){
+		NVIC->ISER[0]|=(1u<<30);					//timer 4 global interrupt enabled
+	}
 	TIM4->CR1|= TIM_CR1_CEN;						//sets first bit of controle register to 1 (this enables it)
 }
 
@@ -73,7 +73,6 @@ void Init_Timer5(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable){	
 
 void TIM2_IRQHandler(void){							//TIMER 2 INTERRUPT SERVICE ROUTINE
 	TIM2->SR &= ~TIM_SR_UIF;							//clear interrupt flag in status register
-	Toggle_B(LD3);
 }
 
 void TIM3_IRQHandler(void){
@@ -82,7 +81,7 @@ void TIM3_IRQHandler(void){
 
 void TIM4_IRQHandler(void){
 	TIM4->SR &= ~TIM_SR_UIF;							//clear interrupt flag in status register
-	GPIOF->ODR ^= (1u<<GREEN_MAN);				//toggle white light
+	GPIOB->ODR ^= (1u<<LD1);				//toggle white light
 }
 
 void TIM5_IRQHandler(void){
@@ -135,7 +134,6 @@ void Wait4_us(int delay_us){
 		current_CNT = TIM4->CNT;
 		
 	}//calculate diffrence in time and compare to delay_cycles
-	
 }
 
 void Wait4_ms(int delay_ms){
@@ -145,21 +143,6 @@ void Wait4_ms(int delay_ms){
 		count --;
 	}
 }
-
-
-//_Bool wait_1ms_ButtonCheck(){
-//	int start = TIM3->CNT;						//mark the stating point
-//	int delay_us = 1000;							//1000us clock cycles per ms
-//	int current_CNT = start;
-//	
-//	while(((current_CNT - start) & (0xFFFF)) < delay_us){
-//		current_CNT = TIM3->CNT;
-//	}//calculate diffrence in time and compare to delay_cycles
-//	return GPIOF->IDR &= (1<<USER_BUTTON);
-//}
-
-
-
 
 
 void Wait3_s(int delay_s){

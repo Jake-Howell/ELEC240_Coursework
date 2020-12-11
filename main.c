@@ -18,8 +18,11 @@ void _sys_exit(int x)
 
 struct _SWITCH_DATA switchData;
 
+char user_name[6];
 
 enum games{GOL = 0, SNAKE, FLAPPY_BIRD};
+
+
 
 void loadingBar();
 unsigned int gameMenu();
@@ -30,12 +33,13 @@ int main(){
 	Init_LEDs();
 	
 	//timer 2 used for sound and ticks every 0.5 ms
-	Init_Timer2(45000, 0xFFFFFFFF, ENABLE_ISR);
+	Init_Timer2(45000, 0xFFFFFFFF, DISABLE_ISR);
 	//timer 3 is used for creating delays and ticks every us
 	Init_Timer3(PSC_Var_Delay, ARR_Var_Delay, DISABLE_ISR);
-	//Timer 4 used to toggle white light dependant on duration of game (frequency increases the longer the game)
-	//Init_Timer4_WhiteLight(PSC_1s, ARR_1s, ENABLE_ISR); //TODO figure out PWM for PF10
+	//Timer 4 used to toggle green LED 
+	Init_Timer4_GreenFlash(PSC_100ms, (2*ARR_100ms), ENABLE_ISR); //5Hz interupt for onboard Green LED
 
+	//buzzer uses Timer 1 for PWM to create sound
 	init_buzzer();
 	init_LCD();
 	init_USART(115200);
@@ -44,7 +48,7 @@ int main(){
 	init_SevenSeg();
 	init_ADC();
 	init_DAC();
-	Set_B(LD1,1);
+
 	
 	//set initial values to switch data
 	switchData.A = 0;
@@ -54,10 +58,10 @@ int main(){
 	switchData.Blue = 0;
 	switchData.BlueLongPress = 0;
 	
-	loadingBar();
-	
-	usart_print("Hello World\n\r");
-
+	//loadingBar();
+	move_usart_cursor(-10,-10);
+	format_usart_text("Hello World\n\r", RED_TEXT, BLUE_BKG);
+	Wait3_s(2);
 	unsigned short voltage;
 //	while(1){
 //		voltage = get_ADC_Voltage();

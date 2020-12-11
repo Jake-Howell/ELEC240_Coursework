@@ -10,6 +10,23 @@ void init_DAC(void)
 	DAC->CR|=DAC_CR_EN2;										//DAC 2 enabled
 }
 
+void init_ADC(void)
+{
+	RCC->AHB1ENR|=RCC_AHB1ENR_GPIOCEN;	//GPIOC clock enable
+	RCC->AHB1ENR|=RCC_AHB1ENR_GPIOAEN;	//GPIOA clock enable
+	ADC_LDR_input_port->MODER|=(3u<<(2*ADC_LDR_input_pin));	//ADC LDR input pin is analogue mode
+	ADC_Pot_input_port->MODER|=(3u<<(2*ADC_Pot_input_pin));	//ADC Pot input pin is analogue mode
+	
+	
+	RCC->APB2ENR|=RCC_APB2ENR_ADC1EN;		//ADC clock enable
+	ADC1->SQR1&=~ADC_SQR1_L;						//set number of conversions per sequence to 1
+	ADC1->SQR3&=~ADC_SQR3_SQ1;					//clear channel select bits
+	ADC1->SQR3|=ADC_Pot_Channel;				//set channel
+	ADC1->CR2|=ADC_CR2_ADON;						//enable ADC
+	
+	
+}
+
 void output_dac(unsigned short data)
 {
 	DAC->DHR12R2=(data & 0x0FFF);			//write data 12 bits to DAC 2 output register
@@ -62,24 +79,6 @@ void sineWave(unsigned short sampleNo, unsigned short period){
 	
 	output_dac(dacVal);
 }
-
-void init_ADC(void)
-{
-	RCC->AHB1ENR|=RCC_AHB1ENR_GPIOCEN;	//GPIOC clock enable
-	RCC->AHB1ENR|=RCC_AHB1ENR_GPIOAEN;	//GPIOA clock enable
-	ADC_LDR_input_port->MODER|=(3u<<(2*ADC_LDR_input_pin));	//ADC LDR input pin is analogue mode
-	ADC_Pot_input_port->MODER|=(3u<<(2*ADC_Pot_input_pin));	//ADC Pot input pin is analogue mode
-	
-	
-	RCC->APB2ENR|=RCC_APB2ENR_ADC1EN;		//ADC clock enable
-	ADC1->SQR1&=~ADC_SQR1_L;						//set number of conversions per sequence to 1
-	ADC1->SQR3&=~ADC_SQR3_SQ1;					//clear channel select bits
-	ADC1->SQR3|=ADC_Pot_Channel;				//set channel
-	ADC1->CR2|=ADC_CR2_ADON;						//enable ADC
-	
-	
-}
-
 
 unsigned short read_adc(void)
 {
