@@ -57,38 +57,33 @@ void Init_Timer4_GreenFlash(unsigned int PSC_val, unsigned int ARR_val, _Bool IS
 	TIM4->CR1|= TIM_CR1_CEN;						//sets first bit of controle register to 1 (this enables it)
 }
 
-void Init_Timer5(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable){	//32 bit timer
+void Init_Timer5_WhitePWM(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable){	//32 bit timer
 	RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;	//ENABLE tim5 to run on APB1 (Advanced Perphieral Bus 1's clock tick) - 90MHz in this case
 	TIM5->DIER |= TIM_DIER_UIE;					//timer update interrupt enabled
 	
-	TIM5->PSC = PSC_val - 1;							//setting pre-scaler (APB1 clock devider) 
-	TIM5->ARR = ARR_val - 1;								//counter reload value (Auto Reload Register - TIM3 ARR is only 16 bit)	
-	TIM5->CNT = 0;											//set initial value to counter
+	TIM5->PSC = PSC_val - 1;				//setting pre-scaler (APB1 clock devider) 
+	TIM5->ARR = ARR_val - 1;				//counter reload value (Auto Reload Register - TIM5 ARR is 32 bit)	
+	TIM5->CNT = 0;									//set initial value to counter
 	
 	if (ISR_Enable == 1){
-		NVIC_EnableIRQ(TIM5_IRQn);						//timer 5 global interrupt enabled
+		NVIC_EnableIRQ(TIM5_IRQn);		//timer 5 global interrupt enabled
 	}
-	TIM5->CR1|= TIM_CR1_CEN;						//sets first bit of controle register to 1 (this enables it)
+	TIM5->CR1|= TIM_CR1_CEN;				//sets first bit of controle register to 1 (this enables it)
 }
 
-void TIM2_IRQHandler(void){							//TIMER 2 INTERRUPT SERVICE ROUTINE
-	TIM2->SR &= ~TIM_SR_UIF;							//clear interrupt flag in status register
-}
-
-void TIM3_IRQHandler(void){
-	TIM3->SR &= ~TIM_SR_UIF;							//clear interrupt flag in status register
-}
-
-void TIM4_IRQHandler(void){
-	TIM4->SR &= ~TIM_SR_UIF;							//clear interrupt flag in status register
-	GPIOB->ODR ^= (1u<<LD1);				//toggle white light
-}
-
-void TIM5_IRQHandler(void){
-	TIM5->SR &= ~TIM_SR_UIF;
+void Init_Timer7_ADC(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable){	//16 bit timer
+	RCC->APB1ENR |= RCC_APB1ENR_TIM7EN;	//ENABLE tim7 to run on APB1 (Advanced Perphieral Bus 1's clock tick) - 90MHz in this case
+	TIM7->DIER |= TIM_DIER_UIE;					//timer update interrupt enabled
 	
+	TIM7->PSC = PSC_val - 1;				//setting pre-scaler (APB1 clock devider) 
+	TIM7->ARR = ARR_val - 1;				//counter reload value (Auto Reload Register - TIM7 ARR is only 16 bit)	
+	TIM7->CNT = 0;									//set initial value to counter
+	
+	if (ISR_Enable == 1){
+		NVIC_EnableIRQ(TIM7_IRQn);		//timer 7 global interrupt enabled
+	}
+	TIM7->CR1|= TIM_CR1_CEN;				//sets first bit of controle register to 1 (this enables it)
 }
-
 
 unsigned int TIM2_Elapsed_ms(unsigned int startTime){
 	

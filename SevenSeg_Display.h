@@ -1,7 +1,8 @@
 #ifndef _SEVEN_SEG
 #define _SEVEN_SEG
 #include <stm32f4xx.h>
-
+#include "Delay.h"
+#include "DAC-ADC.h"
 //select port E
 #define SEVENSEG_PORT	GPIOE
 
@@ -27,6 +28,7 @@
 #define set1()	SEVENSEG_PORT->ODR |= (1u<<D0)|(1u<<D1)
 
 void init_SevenSeg();
+unsigned int set_difficulty();
 void set_SevenSeg(int num);
 int numberGen(int n);
 void updateTens(int tens);

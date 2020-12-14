@@ -19,7 +19,7 @@
 #define TRAF_RED2 7
 #define TRAF_YEL2 8
 #define TRAF_GEN2 9
-#define GREEN_MAN 10
+#define WHITE_LED 10
 
 
 #define LDR 0

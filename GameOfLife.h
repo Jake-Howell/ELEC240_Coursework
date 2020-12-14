@@ -8,6 +8,7 @@
 #include "SevenSeg_Display.h"
 #include "buzzer.h"
 #include "usart.h"
+#include "DAC-ADC.h"
 
 #define SONG1_LENGTH 			56
 #define END_SONG_LENGTH		20
@@ -18,6 +19,7 @@
 void startGameOfLife();
 _Bool runGameOfLife(_Bool frame[2][8][16], _Bool buffNum);
 _Bool rules(_Bool frame[2][8][16], _Bool buffNum, int cellX, int cellY);
-void init_GameOfLife(_Bool frame[2][8][16]);
+void init_GameOfLife(_Bool frame[2][8][16], unsigned int difficulty);
 void resetFrame(_Bool frame[2][8][16]);
+_Bool killRandomCell(_Bool frame[2][8][16]);
 #endif

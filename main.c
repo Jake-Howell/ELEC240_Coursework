@@ -17,8 +17,12 @@ void _sys_exit(int x)
 {x=x;}
 
 struct _SWITCH_DATA switchData;
+struct _ADC_DATA adcData;
+
 
 char user_name[6];
+
+unsigned int PWM_Timing_WhiteLight	= 100;	//allow program to update TMark for PWM of white LED
 
 enum games{GOL = 0, SNAKE, FLAPPY_BIRD};
 
@@ -30,25 +34,30 @@ unsigned int gameMenu();
 int main(){
 	PLL_Config();
 	SystemCoreClockUpdate();
-	Init_LEDs();
 	
+	__disable_irq();
+	
+	Init_LEDs();
 	//timer 2 used for sound and ticks every 0.5 ms
 	Init_Timer2(45000, 0xFFFFFFFF, DISABLE_ISR);
 	//timer 3 is used for creating delays and ticks every us
 	Init_Timer3(PSC_Var_Delay, ARR_Var_Delay, DISABLE_ISR);
 	//Timer 4 used to toggle green LED 
 	Init_Timer4_GreenFlash(PSC_100ms, (2*ARR_100ms), ENABLE_ISR); //5Hz interupt for onboard Green LED
-
+	Init_Timer5_WhitePWM(920, 1000,ENABLE_ISR);
+	Init_Timer7_ADC(PSC_1us, 21, ENABLE_ISR);											//interupt every 21 us for 48Ksps
+	
 	//buzzer uses Timer 1 for PWM to create sound
 	init_buzzer();
-	init_LCD();
-	init_USART(115200);
-	Init_Dpad();
-	Init_BlueButton();
-	init_SevenSeg();
-	init_ADC();
+	init_LCD();									//initalise LCD in 4bit mode
+	init_USART(115200);					//initalise USART with 115200 baud rate
+	Init_Dpad();								//initalise DPad buttons
+	Init_BlueButton();					//initalise the User button
+	init_SevenSeg();						//initalise the 7 seg display
+	init_ADC();									//initalise the ADC
 	init_DAC();
-
+		
+	__enable_irq();							//after all initalisation, turn on interupts
 	
 	//set initial values to switch data
 	switchData.A = 0;
@@ -58,18 +67,18 @@ int main(){
 	switchData.Blue = 0;
 	switchData.BlueLongPress = 0;
 	
+	updateLCD("test",0);
 	//loadingBar();
-	move_usart_cursor(-10,-10);
+	move_usart_cursor(0,3);
+	clear_usart(CURSOR_TO_BEGINING,SCREEN);
 	format_usart_text("Hello World\n\r", RED_TEXT, BLUE_BKG);
-	Wait3_s(2);
-	unsigned short voltage;
-//	while(1){
-//		voltage = get_ADC_Voltage();
-//		printf("Voltage of POT: %dmV\r\n", voltage);
-//	}
 	
+
+	startGameOfLife();
 	while(1){
 		
+		
+
 		switch(gameMenu()){
 			case GOL:
 				readySteadyGo();
@@ -83,10 +92,7 @@ int main(){
 		}
 	}
 
-//	
-//	printf("testing 132");
 	while(1){__NOP();}
-
 }
 
 void loadingBar(){

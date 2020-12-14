@@ -1,5 +1,5 @@
 #include "SevenSeg_Display.h"
-#include "Delay.h"
+
 
 void init_SevenSeg(){
 	
@@ -33,6 +33,16 @@ void init_SevenSeg(){
 	|(1u<<(2*LE1))
 	|(1u<<(2*LE2))
 	|(1u<<(2*15)));
+}
+
+unsigned int set_difficulty(){
+		unsigned int difficulty;
+		extern struct _ADC_DATA adcData;
+		
+		difficulty = (adcData.pot/585)+1; 
+		if (difficulty > 7){difficulty = 7;}	//clamping for dificulty
+		
+		return difficulty;
 }
 
 void set_SevenSeg(int num){

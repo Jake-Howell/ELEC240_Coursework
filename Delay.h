@@ -35,9 +35,9 @@ void Init_Timer3(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable);
 
 void Init_Timer4_GreenFlash (unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable);
 
-void Init_Timer5(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable);
+void Init_Timer5_WhitePWM(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable);
 
-
+void Init_Timer7_ADC(unsigned int PSC_val, unsigned int ARR_val, _Bool ISR_Enable);
 
 
 

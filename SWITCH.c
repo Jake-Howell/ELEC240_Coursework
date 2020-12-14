@@ -38,7 +38,7 @@ void Init_BlueButton(void){
 	EXTI->IMR  |= 0x2000;
 	EXTI->RTSR |= 0x2000;
 	
-	//NVIC_EnableIRQ(EXTI15_10_IRQn);
+	NVIC_EnableIRQ(EXTI15_10_IRQn);
 	
 	__enable_irq();
 	
@@ -66,24 +66,14 @@ void EXTI3_IRQHandler(void){
 void EXTI15_10_IRQHandler(void){
 	extern struct _SWITCH_DATA switchData;
 	
-	Wait3_us(10);
+	Wait3_us(1000);
 	unsigned int startTime = TIM2->CNT;
 	if(checkButton('C',USER_BUTTON) != 0){ //checkButton if button is still pressed after debounce
-		
-		//if button passes debounce, check if it's a long press or short press
-		while(checkButton('C',USER_BUTTON) != 0){
-			
-			//if button is still pressed after 2 seconds activate long press
-			if (TIM2_Elapsed_ms(startTime)>2000){	
-				switchData.BlueLongPress = 1;	//set BlueLongPress in switch data
-				EXTI->PR = 0x2000; 		//Clear interrupt flag
-				return;
-			}
-		}
-		switchData.Blue = 1;		//set Blue in switch data
+		switchData.Blue = 1;		//set Blue switch flag in switch data
 	}
 	
 	EXTI->PR = 0x2000; 		//CLEAR_BIT interrupt flag
+	return;
 }
 
 

@@ -9,7 +9,8 @@ void startGameOfLife(){
 	init_LCD();
 	Init_LEDs();
 	char userName[6]; 
-	
+	extern struct _SWITCH_DATA switchData;
+	extern struct _ADC_DATA adcData;
 	//128 bit frame with blank 128 bit buffer
 	_Bool frame[2][8][16] =
 	{
@@ -83,9 +84,20 @@ void startGameOfLife(){
 	updateLCD("Enter Name on PC",1);
 	
 	
-	printf("Please enter your name (6 chars max) and hit enter:\r\n");
+	format_usart_text("Please enter your name (6 chars max) and hit enter:\r\n",BLACK_TEXT, CYAN_BKG);
 	usart_get_string(userName,6);
-	printf("Your Username is:\t%s",userName);
+	printf("Your Username is:\t%s\r\n",userName);
+	
+	format_usart_text("Please select dificulty with the pot.\n\r This will determin how many cells randomly die each round\n\r", BLACK_TEXT, CYAN_BKG);
+	format_usart_text("press blue button to set difficulty and select cells\r\n", BLACK_TEXT, RED_BKG);
+	
+	unsigned int difficulty = set_difficulty();
+	while(switchData.Blue == 0){
+		difficulty = set_difficulty();		//update difficulty
+		set_SevenSeg(difficulty);					//update seven seg display
+		Wait3_ms(50);
+	}
+	switchData.Blue = 0;								//reset blue button press flag
 	
 	Wait3_s(1);
 	updateLCD("Move with D Pad",0);
@@ -94,7 +106,7 @@ void startGameOfLife(){
 	updateLCD("Long press blue",0);
 	updateLCD("to start",1);
 	
-	init_GameOfLife(frame);	//let player make their move
+	init_GameOfLife(frame, difficulty);	//let player make their move
 	
 	
 	//after player presses blue button for 2 seconds
@@ -118,7 +130,11 @@ void startGameOfLife(){
 			matrix_display(frame,bufferNum);			//draw the next frame
 			songData = playSong(song1, songData);	//play music
 		}
-
+		for (int kill = 0; kill <= difficulty; kill++){			//the higher the dificulty, the more cells will be killed each round
+			killRandomCell(frame);
+		}
+		printf("POT Voltage mV:\t%d\r\nLDR Voltage mV:\t%d\r\n", adcData.pot, adcData.ldr);
+		move_usart_cursor(0,2);
 		continueGame = runGameOfLife(frame,bufferNum);
 		score++;																			//for each new frame add 1 to score
 		//printf("Score:  %d",score);
@@ -150,6 +166,18 @@ void startGameOfLife(){
 	morseCodeScore(score);							//flash score in morse code with blue on board led
 	
 	return;	//return to game menu
+}
+
+_Bool killRandomCell(_Bool frame[2][8][16]){
+	unsigned short cellNum = randomNum(); //get randome number from 0 to 128
+	unsigned short x,y;
+	
+	x = cellNum/16;	//pick a random x coordinate
+	y = cellNum/8;	//pick a random y coordinate
+	
+	frame[0][y][x] = 0; // kill random cell
+	
+	return frame;
 }
 
 _Bool runGameOfLife(_Bool frame[2][8][16], _Bool buffNum){//itterate through each cell and apply rules
@@ -215,7 +243,11 @@ _Bool rules(_Bool frame[2][8][16], _Bool buffNum, int cellX, int cellY){
 	return cellState;
 }
 
-void init_GameOfLife(_Bool frame[2][8][16]){
+void init_GameOfLife(_Bool frame[2][8][16], unsigned int difficulty){
+	extern struct _ADC_DATA adcData;
+	extern struct _SWITCH_DATA switchData;
+	
+	
 	//reset sound variables to play new song
 	struct _SOUND_DATA bluePressData;		//set initial conditions for bluePressData to run sound effects
 	bluePressData.noteStartTime_ms = TIM2->CNT;						//define note start time
@@ -253,7 +285,7 @@ void init_GameOfLife(_Bool frame[2][8][16]){
 	//debounce variables
 	unsigned int startTime=0,timeElapsed = 0, longPress_CNT_ms = 0;				
 	
-	set_SevenSeg(0);
+
 	while(startGameOfLife == 0){
 		matrix_display(frame,0);														//draw next frame
 		bluePressData = playSong(bluePress, bluePressData);	//run blue button sound effects
@@ -268,6 +300,11 @@ void init_GameOfLife(_Bool frame[2][8][16]){
 		//combine all states into a bus to make debouncing easier
 		buttonBus = userButtonVal | (up<<1u) | (down<<2u) | (left<<3u) | (right<<4u);
 		
+		if(switchData.Blue == 1){		//checkButton blue button flag
+			currentCellState = !currentCellState;
+			bluePressData.noteNum = 0;
+			switchData.Blue = 0; //reset button flag
+		}
 		
 		timeElapsed = (TIM3->CNT - startTime)&0xFFFF;				//update time elapsed for debounce
 		switch(currentState){
@@ -304,7 +341,7 @@ void init_GameOfLife(_Bool frame[2][8][16]){
 				
 			case DEBOUNCED:
 				if((lastBus & 1) == 1){	//check if blue button was pressed
-					currentCellState = !currentCellState;						//get initial cell state
+					//currentCellState = !currentCellState;						//get initial cell state
 					bluePressData.noteNum = 0; 											//reset note to start sound effect
 					
 				}else{

@@ -30,7 +30,7 @@ void clear_usart(int clear, _Bool clearType){	//clear selected parts of screen a
 	if (clearType == LINE){
 		printf("\x1b[%dK",clear);									//if clear line is set, use whatever code to act on only the current line
 	}else if (clearType == SCREEN){
-		printf("\x1b[%dJ",clear);									//if clear screen is set, use whatever code to act on the whol;e screen
+		printf("\x1b[%dJ",clear);									//if clear screen is set, use whatever code to act on the whole screen
 	}
 }
 
