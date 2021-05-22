@@ -4,8 +4,14 @@
 
 //LCD meta data
 #define LCD_WIDTH		16 								//LCD 16 char wide
+
+//Heinsight comment... display could only require 7 bits... not 8. 
+//This could cause the data register address, to overflow which could be the root cause of 
+//the LCD printing issue from Elec 240 as it would overflow the data buffer and wrap arround memory
+//the extra logical 1 could also corrupt 7 bit ascii data causing it to print an incorrect character
 #define LCD_LINE1		0x80							//LCD DDRAM address for line 1 
 #define LCD_LINE2		0xc0							//LCD DDRAM address for line 2
+
 #define LCD_D0_pin	0									//micro controller pin connected to LCD D0 pin
 #define LCD_D1_pin	1
 #define LCD_D2_pin	2
